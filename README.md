@@ -1,6 +1,6 @@
-# Welcome to the neighborhood map around UCL # 
+# Welcome to the neighborhood map around UCL 
 
-## table of contents ## 
+## table of contents  
 
 * How to use the app
 * Acknowledgement (icons and APIs) 
