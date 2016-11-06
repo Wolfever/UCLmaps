@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Around UCL </title>
+	<title> Around UCL </title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<script src="js/lib/jquery-3.1.1.min.js"></script>
@@ -259,7 +259,9 @@
 			{item: "Backward arrow icon by Freepik from www.flaticon.com"},
 			{item: "Close icon by Madebyoliver from www.flaticon.com"},
 			{item: "OpenWeatherMap API from http://openweathermap.org/"},
-			{item: "google maps API"}
+			{item: "google maps API"},
+			{item : "jQuery"},
+			{item: "knockout.js"}
 		]; 
 	</script>
 
@@ -315,7 +317,7 @@
 			</div>
 			
 			<div class="detailsContent"><h3 data-bind="text: infoTitle()"></h3></div>
-			<div class="detailsContent"><img data-bind ="attr: {src: infoURL(), alt: inforAlt(), width: '100%'}"></div>
+			<div class="detailsContent"><img alt="Google streetview image" data-bind ="attr: {src: infoURL(), alt: inforAlt(), width: '100%'}"></div>
 			<div class="addressDiv" data-bind="text: fullAddress(), visible: fullAddress().length > 0"></div>
 			<div id="optionsButton">
 				<div class="functionItem" data-bind="text: saveOption(), click: $root.switchSave">Favorite</div>
@@ -501,7 +503,7 @@
 				self.wtresponse(-1);
 				self.infoTitle(marker.title);
 				//图片 the street view image 
-				var streetviewUrl = 'http://maps.googleapis.com/maps/api/streetview?size=500x300&location=' + marker.title + '';
+				var streetviewUrl = 'http://maps.googleapis.com/maps/api/streetview?size=500x300&location=' + marker.title + '&key=AIzaSyBxIepG4OU96IlfLMA_ddK_JHLqT6OgQyk';
 				self.infoURL(streetviewUrl);
 				// formatted address 
 				self.fullAddress("");
