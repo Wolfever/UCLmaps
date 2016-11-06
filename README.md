@@ -7,8 +7,8 @@
 
 ### How to use the app 
 
-* Open the index.html or go to [this site](https://wolfever.github.io/UCLmaps/index.html). 
- Click the menu icon on the top-left to see a list of options
+* Open the index.html or go to [this site](http://21xinpj.com/maps/index.html). 
+* Click the menu icon on the top-left to see a list of options
 
 1. Open My favorites to see and filter the saved markers 
 1. Open Acknowledgements to see what resources this app has used 
