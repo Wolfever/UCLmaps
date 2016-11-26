@@ -2,295 +2,42 @@
 <html lang="en">
 <head>
 	<title> Around UCL </title>
+	<link href="img/favicon.ico" rel="shortcut icon" >
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<script src="js/lib/jquery-3.1.1.min.js"></script>
-    <script src="js/lib/knockout-3.4.0.js"></script>
-    <style type="text/css">
-    	/* Styles are inlined for convinience sake. */
-    	* {
-    		box-sizing: border-box;
-    	}
-		
-		body, 
-		html,
-		#container {
-			width: 100%;
-			height: 100%;
-			margin: 0;
-			padding: 0;
-		}
-
-		#topBanner {
-			height: 50px;
-			width: 100%;
-			position: absolute;
-			top: 0;
-			display: flex;
-			justify-content: space-between;
-			z-index: 2;
-			background-color: grey;
-			color: black;
-		}
-
-		#topBanner,
-		#menuMain,
-		#searchMain,
-		#myFavorites {
-			will-change: transform;
-			transform: translateZ(0);
-		}
-		
-		#map {
-			z-index: 1;
-			width: 100%;
-			height: calc(100% - 50px);
-			top: 50px;
-		}
-
-		.topicon,
-		.search {
-			width: 40px;
-			margin: 5px;
-			cursor: pointer;
-		}
-
-		h1 {
-			line-height: 50px;
-			margin: 0;
-		}
-
-		#menuMain {
-			position: absolute;
-			top: 50px;
-			margin: 0;
-			padding-top: 25px;
-			z-index: 2;
-			background-color: gray;
-			display: none;
-		}
-
-		#searchMain {
-			position: absolute;
-			top: 50px;
-			right: 0;
-			z-index: 2;
-			max-width: 100%;
-			display: none;
-		}
-
-		#myFavorites {
-			position: absolute;
-			top: 50px;
-			left: 0;
-			z-index: 2;
-			background-color: gray;
-			display: none;
-		}
-
-		#acknowledgement,
-		#detailedInfo {
-			position: absolute;
-			top: 50px;
-			left: 0;
-			z-index: 2;
-			background-color: gray;
-			display: none;
-		}
-
-		#acknowledgement,
-		#myFavorites,
-		#menuMain,
-		#detailedInfo {
-			height: calc(100% - 50px);
-			overflow-y: auto;
-			width: 250px;
-		}
-
-		.item {
-			padding: 10px 20px;
-    		line-height: 20px;
-    		cursor: pointer;
-		}
-
-		.item:hover {
-			background-color: white;
-		}
-
-		button.item {
-			width: 100%;
-			padding: 0 20px;
-		}
-
-		#searchBox {
-			height: 40px;
-			margin: 0;
-			padding: 0 20px;
-			display: inline;
-			top: 50%;
-			transform: translateY(-50%);
-		}
-
-		.filtering {
-			display: flex;
-			justify-content: space-between;
-			padding: 5px 5px 0 5px;
-		}
-
-		#filterBox {
-			width: 100%;
-			height: 40px;
-			padding: 0 20px;
-		}
-		
-		#filterButton {
-			margin-left: 14px;
-			cursor: pointer;
-		}
-
-
-		.closefav {
-			margin-left: calc(50% - 20px);
-		}
-
-		.details {
-			width: 100%;
-			line-height: 45px;
-			background-color: #c3c;
-			border-radius: 10px;
-		    margin: 5px 0;
-		    text-align: center;
-		    font-size: 24px;
-		}
-
-		.weather {
-			display: flex;
-			justify-content: space-around;
-			flex-wrap: wrap;
-			background-color: #bbb;
-		}
-
-		.weather h3 {
-			margin: 5px;
-
-		}
-
-		.weatherTitle {
-			width: 100%;
-			font-size: 1.17em;
-			text-align: center;
-		}
-
-		.weatherTitle p {
-			margin: 15px 0 0 0;
-			font-weight: bold;
-		}
-
-		.functionItem {
-			padding: 14px;
-			width: 100%;
-			line-height: 20px;
-			margin: 5px;
-			background: pink;
-			text-align: center;
-		}
-
-		.subMenuBar {
-			background-color: #ccc;
-			display: flex;
-			justify-content: space-between;
-		}
-
-		.subMenus {
-			width: 30px;
-			height: 30px;
-			margin: 2px 5px;
-			cursor: pointer;
-		}
-
-		.detailsContent,
-		#optionsButton {
-			padding: 0 15px;
-		}
-
-		.addressDiv {
-			padding: 5px 20px;
-    		background-color: #bbb;
-		}
-
-		@media only screen and (max-width: 500px){
-			#acknowledgement,
-			#myFavorites,
-			#menuMain,
-			#detailedInfo{
-				width: 100%;
-			}
-		}
-    </style>
-	<script type="text/javascript">
-		// Here is my model
-		var map, createMarkers, myInfowindow, markers, markersFav, setBounds, defaultBounds, performAjax;
-		var highLightThisMarker, stopHighLighting, currentMarkerIcon, defaultIcon, geocoder; 
-		var isTouchDevice = 'ontouchstart' in document.documentElement;
-		var screenWidth = screen.width;
-		// items in menu 
-		var menuItems = ["My Favorites", "Show Search", "Acknowledgements"];
-		// Store some markers into localStorage 
-		if(!localStorage.myMarkers){
-			var myMarkers = [{"title":"University College London","location":{"lat":51.524561,"lng":-0.13534100000003946}},
-				{"title":"Euston Square","location":{"lat":51.526867,"lng":-0.13279899999997724}},
-				{"title":"University College London Hospital","location":{"lat":51.524684,"lng":-0.13623699999993732}},
-				{"title":"UCL Ear Institute and Action on Hearing Loss Library","location":{"lat":51.52927210000001,"lng":-0.11956680000002962}},
-				{"title":"The British Library","location":{"lat":51.52997169999999,"lng":-0.12767589999998563}},
-				{"title":"UCL Main Library","location":{"lat":51.524697,"lng":-0.1335046000000375}},
-				{"title":"Senate House Library","location":{"lat":51.5210743,"lng":-0.12873530000001665}},
-				{"title":"UCL Shop","location":{"lat":51.5242693,"lng":-0.13335459999996147}},
-				{"title":"Waterstones","location":{"lat":51.522448,"lng":-0.13218099999994593}},
-				{"title":"Tavistock Square Gardens","location":{"lat":51.52495779999999,"lng":-0.12906610000004548}},
-				{"title":"George Mews Car Park","location":{"lat":51.5267067,"lng":-0.1380340000000615}},
-				{"title":"Bloomsbury Cafe","location":{"lat":51.52506849999999,"lng":-0.1325511000000006}},
-				{"title":"UCLU Gordon's Cafe","location":{"lat":51.52564659999999,"lng":-0.13335129999995843}},
-				{"title":"Print Room Café","location":{"lat":51.524095,"lng":-0.1333590000000413}}];
-			localStorage.setItem("myMarkers", JSON.stringify(myMarkers));
-		}
-		var acknowledgement = [
-			{item: "Menu icon was made by Eleonor Wang from www.flaticon.com"},
-			{item: "Search icon made by Freepik from www.flaticon.com"},
-			{item: "Backward arrow icon by Freepik from www.flaticon.com"},
-			{item: "Close icon by Madebyoliver from www.flaticon.com"},
-			{item: "OpenWeatherMap API from http://openweathermap.org/"},
-			{item: "google maps API"},
-			{item : "jQuery"},
-			{item: "knockout.js"}
-		]; 
-	</script>
-
+	
+    <link rel="stylesheet" href="css/mystyle.css" >
+    
 </head>
 <body>
 	<div id="container">
-		<div id="map"></div>
-		<div id="topBanner">
-			<img src="img/svg/menu.svg" class="menu topicon" data-bind="click: showMenu" >
+		<main id="map" data-bind="attr: {width : mapWidth, left: mapLeft}"></main>
+		<!-- Top most banner !-->
+		<header id="topbanner">
+			<img src="img/svg/menu.svg" alt="M" class="menu topicon" data-bind="click: showMenu" >
 			<h1>UCL Neighborhood</h1>
-			<img src="img/svg/search.svg" class="search topicon" data-bind="click: showSearch" >
-		</div>
-		<div id="menuMain" >
+			<img src="img/svg/search.svg" alt = "S" class="search topicon" data-bind="click: showSearch" >
+		</header>
+		<!-- Menu, initially hidden !-->
+		<aside id="menumain" data-bind="visible: showMenuVar">
 			<div data-bind="foreach: menu()">
 				<div class="item" data-bind="text: $data, click: $root.respond"></div>
 			</div>
 			<button class="item" data-bind="click: closeMenu">Close Menu</button>
-		</div>
-		<div id="searchMain">
-			<div class="menuContain">
-				<input type="text" name="search" id="searchBox">
-				<img src="img/svg/error.svg" class="search" data-bind="click: hideSearch">
+		</aside>
+		<!-- Search box, initially hidden !-->
+		<aside id="searchmain" data-bind="visible: showSearchVar">
+			<div class="menucontain">
+				<input type="text" name="search" id="searchbox">
+				<img src="img/svg/error.svg"  alt = "X" class="search" data-bind="click: hideSearch">
 			</div>
 			
-		</div>
-		<div id="myFavorites">
-			<div class="subMenuBar">
-				<img src="img/svg/backward-arrow.svg" class="subMenus" data-bind="click: showMenu">
-				<img src="img/svg/error.svg" class="subMenus" data-bind="click: reset">
+		</aside>
+		<!-- Favorite marker list, initially hidden !-->
+		<aside id="myfavorites" data-bind="visible: showMyFavoritesVar">
+			<div class="submenubar">
+				<img src="img/svg/backward-arrow.svg" alt="Back" class="submenus" data-bind="click: showMenu">
+				<img src="img/svg/error.svg"  alt = "X" class="submenus" data-bind="click: reset">
 			</div>
 			<div class="filtering">
 				<input type="text" id="filterBox" data-bind ="textInput: initial">
@@ -300,454 +47,44 @@
 				<div data-bind="text: title, event :{mouseout: $root.resetIcons, mouseover: $root.showThisMarker, click: $root.changeCenter}" class="item"></div>
 			</div>
 			
-		</div>
-		<div id="acknowledgement">
-			<div class="subMenuBar">
-				<img src="img/svg/backward-arrow.svg" class="subMenus" data-bind="click: showMenu">
-				<img src="img/svg/error.svg" class="subMenus" data-bind="click: reset">
+		</aside>
+		<!-- Acknowledgements, initially hidden !-->
+		<aside id="acknowledgement" data-bind="visible: showAcknowledgementsVar">
+			<div class="submenubar">
+				<img src="img/svg/backward-arrow.svg" alt="Back" class="submenus" data-bind="click: showMenu">
+				<img src="img/svg/error.svg"  alt = "X" class="submenus" data-bind="click: reset">
 			</div>
 			<div data-bind="foreach: acknowledgement()">
 				<div class="item" data-bind="text: item"></div>
 			</div>
-		</div>
-		
-		<div id="detailedInfo">
-			<div class="subMenuBar">
-				<img src="img/svg/error.svg" class="subMenus" data-bind="click: reset">
+		</aside>
+		<!--Detailed info panel about a place, initially hidden !-->
+		<aside id="detailedinfo" data-bind="visible: showDetailedInfoVar">
+			<div class="submenubar">
+				<img src="img/svg/error.svg"  alt = "X" class="submenus" data-bind="click: reset">
 			</div>
 			
-			<div class="detailsContent"><h3 data-bind="text: infoTitle()"></h3></div>
-			<div class="detailsContent"><img alt="Google streetview image" data-bind ="attr: {src: infoURL(), alt: inforAlt(), width: '100%'}"></div>
-			<div class="addressDiv" data-bind="text: fullAddress(), visible: fullAddress().length > 0"></div>
-			<div id="optionsButton">
+			<div class="detailscontent"><h3 data-bind="text: infoTitle()">Details</h3></div>
+			<div class="detailscontent"><img alt="Google streetview image" src="#" data-bind ="attr: {src: infoURL(), alt: inforAlt(), width: '100%'}"></div>
+			<div class="addressdiv" data-bind="text: fullAddress(), visible: fullAddress().length > 0"></div>
+			<div id="optionsbutton">
 				<div class="functionItem" data-bind="text: saveOption(), click: $root.switchSave">Favorite</div>
 			</div>
 			<div class="weather" data-bind="visible: wtresponse() > 0">
-				<div class="weatherTitle"> <p>Local Weather</p></div>
-				<h3 data-bind="text: infoWTName()"></h3>
-				<img data-bind="attr: {src: weatherURL(), alt: weatherAlt()}">
+				<div class="weathertitle"> <p>Local Weather</p></div>
+				<h3 data-bind="text: infoWTName()">City Weather</h3>
+				<img src="#" alt="" data-bind="attr: {src: weatherURL(), alt: weatherAlt()}">
 			</div>
-		</div>
+		</aside>
 	</div>
-	
-</body>
-	<script type="text/javascript">
-		// Here is my ViewModel for KO
-		function AppViewModel() {
-			
-			var self = this;
-			// observables 
-			this.menu = ko.observable(menuItems);
-			this.acknowledgement = ko.observableArray(acknowledgement);
-			// Functions 
-			this.reset = function() {
-				$("#menuMain").hide();
-				$("#searchMain").hide();
-				$("#myFavorites").hide();
-				$("#acknowledgement").hide();
-				$("#detailedInfo").hide();
-				self.resettingMap();
-				myInfowindow.close();
-			};
-			// functions to resize maps when showing and hiding the left-side menu on larger
-			// screens 
-			var $map = $("#map")
-			this.mapFitting = function() {
-				if(screenWidth > 500){
-					$map.css("width", "calc(100% - 250px)");
-					$map.css("left", "250px");
-				}
-			}
-			this.resettingMap = function() {
-				if(screenWidth > 500){
-					$map.css("width", "100%");
-					$map.css("left", "0");
-				}
-			}
-			
-			// read from model for favourite markers and display them on the screen 
-			var favouriteMarkers = JSON.parse(localStorage.myMarkers);
-			this.favoriteMarkerList = ko.observableArray(favouriteMarkers); 
-			this.showMyFavorites = function(){
-				self.reset();
-				$("myFavorites").show();
-				setBounds(markersFav);
-			}
-
-			// Set up for filtering function 
-			this.initial = ko.observable("");
-			this.favorites = ko.computed(function(){
-					var arry = []
-					if(markersFav){ // markersFav only exists after map is loaded, so an if is added 
-									// to prevent error
-						self.favoriteMarkerList(markersFav);	// Store markers in an ko.observable array, 
-																// there is little sense in it... 
-					}
-					for (var x=0; x<self.favoriteMarkerList().length; x++){
-						if(self.favoriteMarkerList()[x].title.indexOf(self.initial()) >= 0){ 
-															// filtering through checking if the typed in words 
-															// are contained in the marker title. 
-															// If so, push it in an arry, and display it  
-							arry.push(self.favoriteMarkerList()[x]);
-							if(markersFav){
-								markersFav[x].setMap(map);
-							}
-						}else if(markersFav){ 				// if not, hide it
-							markersFav[x].setMap(null);
-						}
-					}
-					return arry;
-			});
-
-			// When the filter button is clicked 
-			this.filterFunc = function(){
-				if(screenWidth < 500){
-					self.reset();
-				}
-				setBounds(self.favorites());
-			}
-
-			//Functions when menuItems are clicked
-			this.respond = function(clickedItem) {
-				switch (clickedItem){
-					case 'My Favorites': 		// Show markers on the screen 
-						self.reset();
-						self.mapFitting();
-						self.showMyFavorites();
-						hideAllMarkers();
-						showMarker(markersFav);
-						setBounds(markersFav);
-						self.favoriteMarkerList(markersFav);
-						break;
-					case 'Show Search': 		// Show a searchbox 
-						self.reset();
-						self.showSearch();
-						break;
-					case 'Acknowledgements': 	// Show references 
-						self.reset();
-						self.mapFitting();
-						self.showAcknowledgements();
-					default: 					// For fun... So I can add more useless menus in the menu  
-						console.log("Hello");
-				}
-			}
-
-
-
-			// Functions to show/hide the menu
-			this.showMenu = function(){
-				self.reset();
-				$("#menuMain").show();
-				self.mapFitting();
-			};
-			this.closeMenu = function(){
-				$("#menuMain").hide();
-				self.resettingMap();
-			};
-
-			// functions to show/hide the search input 
-			this.showSearch = function() {
-				self.reset();
-				
-				$("#searchMain").show();
-			}
-			this.hideSearch = function() {
-				$("#searchMain").hide();
-			}
-
-			this.showMyFavorites = function() {
-				$("#myFavorites").show();
-			}
-
-			this.showAcknowledgements = function() {
-				$("#acknowledgement").show();
-			}
-
-			// Animation for a chosen marker 
-			this.showThisMarker = function(clickedItem){
-				// self.resetIcons();
-				clickedItem.setIcon(currentMarkerIcon);
-				// clickedItem.highLightThisMarker();
-			}
-			// change Center of the map 
-			this.changeCenter = function(clickedItem) {
-				self.reset();
-				map.setCenter(clickedItem.position);
-				map.setZoom(16);
-				populateInfoWindow(clickedItem, myInfowindow);
-			}
-
-			self.resetIcons = function(){
-				for(var i=0; i<self.favoriteMarkerList().length; i++){
-					self.favoriteMarkerList()[i].setIcon(defaultIcon);
-				}
-			}
-
-			this.showDetailedInfo = function(){
-				$("#detailedInfo").show();
-			}
-
-			// performAjax Func
-			this.infoTitle = ko.observable("");
-			this.infoURL = ko.observable("");
-			this.inforAlt = ko.observable("");
-			this.infoWTName = ko.observable("");
-			this.weatherAlt = ko.observable("");
-			this.weatherURL = ko.observable("");
-			this.saveOption = ko.observable("Save to MyFavorite");
-			this.currentMarker = ko.observable("");
-			this.wtresponse = ko.observable(-1);
-			this.fullAddress = ko.observable("");
-			performAjax = function(marker){
-				self.currentMarker(marker);
-				self.wtresponse(-1);
-				self.infoTitle(marker.title);
-				//图片 the street view image 
-				var streetviewUrl = 'http://maps.googleapis.com/maps/api/streetview?size=500x300&location=' + marker.title + '&key=AIzaSyBxIepG4OU96IlfLMA_ddK_JHLqT6OgQyk';
-				self.infoURL(streetviewUrl);
-				// formatted address 
-				self.fullAddress("");
-				var currentLocation = {'location': {lat: marker.position.lat(), lng: marker.position.lng()}};
-				geocoder.geocode(currentLocation, function(result,status){
-					if (status === google.maps.GeocoderStatus.OK) {
-						self.fullAddress(result[0].formatted_address);
-					}else{
-						console.log('Geocoder failed due to: ' + status);
-						alert("Sorry, cannot get address now. :( " );
-					}
-				});
-				// Weather condition
-				var wturl = "http://api.openweathermap.org/data/2.5/weather?lat="+
-							marker.position.lat()+"&lon="+
-							marker.position.lng()+"&appid=457b6d0eb651722c34fa15758ad21a75";
-
-				$.ajax({
-					url: wturl,
-					method: 'GET'
-				}).done(function(result){
-					self.wtresponse(1);
-					self.infoWTName(result.name);
-					self.weatherURL("http://openweathermap.org/img/w/" + result.weather[0].icon+ ".png");
-					self.weatherAlt(result.weather[0].description);
-				});
-				// Function for saving and deleting markers 
-				if(markersFav.indexOf(marker)<0){
-					self.saveOption("Save to MyFavorite");  
-				}else {
-					self.saveOption("Delete from MyFavorite");
-				}
-				// ...and, display it on the screen 
-				self.showDetailedInfo();
-			}
-			// if a marker is added or deleted from favorites, update the localstorage 
-			this.updateLocalStorage = function(){ //对相应的model有修改，保存到localstrorage中
-				var markerRef = {};
-				var refList = [];
-				for(var i = 0; i < markersFav.length; i++){
-					markerRef = {"title": markersFav[i].title,
-								"location": 
-									{"lat": markersFav[i].position.lat(),
-									"lng": markersFav[i].position.lng()}};
-					refList.push(markerRef);
-				}
-				localStorage.setItem("myMarkers", JSON.stringify(refList));
-			}
-			// If a marker is saved or deleted as favorite, change the option to the other and
-			// update the localStorage  
-			this.switchSave = function(){
-				// see if the currentmarker is in the favorite array
-				if(markersFav.indexOf(self.currentMarker())<0){ // 如果没有被收藏
-					markersFav.push(self.currentMarker());
-					alert("Saved!");
-					self.saveOption("Delete from MyFavorite"); //通知用户相应的变化
-					self.updateLocalStorage();					
-				}else {
-					markersFav.splice(markersFav.indexOf(self.currentMarker()), 1);
-					alert("Deleted");
-					self.saveOption("Save to MyFavorite"); //通知用户相应的变化
-					self.updateLocalStorage();
-				}
-			}	
-		};
-		// Activates knockout.js
-		ko.applyBindings(new AppViewModel());
-	</script>
-
-    <script type="text/javascript">
-    	// initializing the google map 
-    	function initMap() {
-    		map = new google.maps.Map(document.getElementById("map"), {
-				center:{lat: 51.5245625, lng: -0.1362288},
-				// center:{lat: 39.917748, lng: 116.369621},
-				zoom: 16,
-				mapTypeControl: true,
-			    mapTypeControlOptions: {
-			        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-			        position: google.maps.ControlPosition.LEFT_BOTTOM
-			    }
-			}); 
-    		geocoder  =  new google.maps.Geocoder;
-    		// attach the input to enable autocomplete 
-			var input = $("#searchBox")[0];
-			var searchBox = new google.maps.places.SearchBox(input);
-			myInfowindow = new google.maps.InfoWindow();
-			// 调整icon的颜色，优达学城课上抄过来的-_-
-			// change icon-colors: modified by udacity course material 
-			defaultIcon = makeMarkerIcon('0091ff');
-			currentMarkerIcon = makeMarkerIcon('FFFF24');
-			function makeMarkerIcon(markerColor) {
-				var markerImage = new google.maps.MarkerImage(
-					'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
-					'|40|_|%E2%80%A2',
-				new google.maps.Size(42, 68),
-				new google.maps.Point(0, 0),
-				new google.maps.Point(21, 68),
-				new google.maps.Size(42,68));
-				return markerImage;
-			}
-			highLightThisMarker = function(){
-				this.setIcon(currentMarkerIcon);
-			}
-			stopHighLighting = function(){
-				this.setIcon(defaultIcon);
-			}
-			// this function is used once when initializing stored markers and display it on map 
-			createMarkers = function(locations) {
-				markers=[]; 
-				for(var i=0; i<locations.length; i++){
-					var marker = new google.maps.Marker({
-						position: locations[i].location,
-						title: locations[i].title,
-						icon: defaultIcon,
-						animation: google.maps.Animation.DROP,
-						map: map
-					});
-
-
-					markers.push(marker);
-					marker.addListener('click', function(){
-						populateInfoWindow(this, myInfowindow);
-					});
-					if(!isTouchDevice){
-						marker.addListener('mouseover', highLightThisMarker);
-						marker.addListener('mouseout', stopHighLighting);
-					}
-					
-				}
-			}
-
-			// Show Initial Markers, and save each marker as favorite 
-			var favouriteMarkers = JSON.parse(localStorage.myMarkers);
-			createMarkers(favouriteMarkers);
-			markersFav = [];
-			for(var i = 0; i<markers.length; i++){
-				markersFav.push(markers[i]);
-			}
-			// confine the maps to show all the necessary markers  
-			setBounds= function(markerArry) {
-				var bounds = new google.maps.LatLngBounds();
-				for(var i = 0; i<markerArry.length; i++){
-					
-					bounds.extend(markerArry[i].position);
-					markerArry[i].setMap(map);
-				}
-				map.fitBounds(bounds);
-			}
-			setBounds(markersFav);
-
-			// enable search function and return places with markers, modified little 
-			// from google maps api referece 
-			searchBox.addListener('places_changed', function(){
-				var places = searchBox.getPlaces();
-				if(places.length === 0){
-					return;
-				}
-				// Hide all the old markers and delete them 
-				markers.forEach(function(marker){
-					marker.setMap(null);
-				}); 
-				markersFav.forEach(function(marker){
-					marker.setMap(null);
-				})
-				markers = [];
-
-				// Create a marker for each 
-				places.forEach(function(place) {
-					// this google icon is no longer needed 
-					/*
-					var icon = {
-						url: place.icon,
-						size: new google.maps.Size(71, 71),
-						origin: new google.maps.Point(0, 0),
-						anchor: new google.maps.Point(17, 34),
-						scaledSize: new google.maps.Size(25, 25)
-					};
-					*/ 
-					var marker = new google.maps.Marker({
-						map: map,
-						icon: defaultIcon,
-						title: place.name,
-						position: place.geometry.location
-					});
-					markers.push(marker);
-					marker.addListener('click', function(){
-						populateInfoWindow(this, myInfowindow);
-					});
-					if(!isTouchDevice){
-						marker.addListener('mouseover', highLightThisMarker);
-						marker.addListener('mouseout', stopHighLighting);
-					}
-				})
-
-				setBounds(markers);
-			})
-
-			
-    	}
-
-    	
-    	// populateInfoWindow defined, modified from udacity course material 
-    	function populateInfoWindow(marker, infowindow){
-    		// Check to make sure the infowindow is not already opened on this marker.
-			if (infowindow.marker != marker) {
-			// Clear the infowindow content to give the streetview time to load.
-				infowindow.setContent('');
-				infowindow.marker = marker;
-			// Make sure the marker property is cleared if the infowindow is closed.
-				infowindow.addListener('closeclick', function() {
-					infowindow.marker = null;
-				});
-			}
-			infowindow.setContent('<div><h2>' + marker.title + '</h2></div>' + 
-				'<div class = "details">Show Details</div>');
-
-			infowindow.open(map, marker);
-			// 需要先打开infowindow，才能用$....好吧
-			$(".details").click(function(){
-				performAjax(marker);
-			});	
-    	}
-    	function hideAllMarkers() {
-    		// hide my favorites 
-    		markersFav.forEach(function(marker){
-    			marker.setMap(null);
-    		});
-			markers.forEach(function(marker) {
-				marker.setMap(null);
-			});
-    	}
-    	function showMarker(markerArry){
-    		markerArry.forEach(function(marker){
-    			marker.setMap(map);
-    		});
-    	}
-		
-
-    	
-    	
-		
-    </script>
+	<script src="js/model.js"></script>
+	<script src="js/lib/jquery-3.1.1.min.js"></script>
+    <script src="js/lib/knockout-3.4.0.js"></script>
+	<script src="js/ko.js">	</script>
+    <script src = "js/map.js">  </script>
 	<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBxIepG4OU96IlfLMA_ddK_JHLqT6OgQyk&libraries=geometry,places&v=3&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBxIepG4OU96IlfLMA_ddK_JHLqT6OgQyk&libraries=geometry,places&v=3&callback=initMap" onerror="mapError()">
 	</script>
+</body>
+	
 </html>
